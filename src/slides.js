@@ -9,6 +9,7 @@ export const COURSES = {
   mgt887: { code: 'MGT 887', name: 'Negotiations', prof: 'Horace Slughorn' },
   mgt402: { code: 'MGT 402', name: 'Basics of Accounting', prof: 'Severus Snape' },
   mgt538: { code: 'MGT 538', name: 'Mastering Influence & Persuasion', prof: 'Gilderoy Lockhart' },
+  mgt407: { code: 'MGT 407', name: 'Statistics (EMBA)', prof: 'Peter Schott' },
   mgt800: { code: 'MGT 800', name: 'Crisis Management in Tech', prof: 'Alastor Moody' },
   mgt541: { code: 'MGT 541', name: 'Corporate Finance', prof: 'Filius Flitwick' },
 }
@@ -51,6 +52,11 @@ const DECKS = {
     title: ['The Science of Yes', 'Influence without magic'],
     content: ["Cialdini's six principles", ['Reciprocity · Commitment · Social proof', 'Liking · Authority · Scarcity', 'Ethical influence builds trust', 'Signed photos are not a strategy']],
     chart: 'funnel',
+  },
+  mgt407: {
+    title: ['Regression, Dude', 'Correlation is not causation (but it is a start)'],
+    content: ['Reading a regression', ['ŷ = β₀ + β₁x: the slope is the story', 'Standard error → confidence interval', 'p < 0.05 is evidence, not proof', 'Natural experiments find causes']],
+    chart: 'regression',
   },
   mgt800: {
     title: ['Constant Vigilance', 'Running the first 72 hours of a tech crisis'],
@@ -197,6 +203,26 @@ function drawChart(g, which) {
       g.font = '30px Georgia, serif'
       g.fillText(lab, x - g.measureText(lab).width / 2, 470)
     })
+  } else if (which === 'regression') {
+    axes()
+    // scatter around a fitted line (fixed pseudo-random noise so every frame matches)
+    for (let i = 0; i < 26; i++) {
+      const x = ox + 50 + i * 36
+      const noise = Math.sin(i * 12.9898) * 43758.5453
+      const y = oy - 60 - i * 14 + ((noise - Math.floor(noise)) - 0.5) * 140
+      g.fillStyle = i % 5 === 0 ? PINK : '#5a7bb0'
+      g.beginPath()
+      g.arc(x, y, 9, 0, Math.PI * 2)
+      g.fill()
+    }
+    g.strokeStyle = BLUE
+    g.lineWidth = 6
+    g.beginPath()
+    g.moveTo(ox + 30, oy - 50)
+    g.lineTo(ox + 990, oy - 430)
+    g.stroke()
+    g.fillStyle = INK
+    g.fillText('ŷ = β₀ + β₁x', ox + 640, oy - 470)
   } else if (which === 'dcf') {
     axes()
     for (let i = 0; i < 6; i++) {

@@ -8,6 +8,7 @@ const MAX_CHARS = 1500 // matches MAX_MESSAGE_CHARS in backend/models.py
 
 const GREETING = {
   zaman: "Yo! Welcome to MGT 409. Ask me anything: AI agents, stats, regression, which classes to take... let's gooo.",
+  schott: "Hey hey, welcome to EMBA stats! Stoked you stopped by. Got a long problem for me? Those are my favorite.",
 }
 
 export default function ProfChat({ slug, onClose }) {

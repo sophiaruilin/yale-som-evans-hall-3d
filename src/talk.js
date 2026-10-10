@@ -9,6 +9,7 @@ export const talkState = { with: null } // slug of the professor you're chatting
 
 export const PROFESSOR_INFO = {
   zaman: { name: 'Tauhid Zaman', short: 'Prof. Zaman', course: 'MGT 409 · AI Foundations for Managers' },
+  schott: { name: 'Peter Schott', short: 'Prof. Schott', course: 'MGT 407 · Statistics (EMBA)' },
 }
 
 export function startTalk(slug) {

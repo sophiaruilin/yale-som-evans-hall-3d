@@ -176,6 +176,15 @@ def test_successful_turn_is_logged(client, monkeypatch, audit_path):
 
 
 def test_professor_list(client):
-    profs = client.get("/api/professors?persona_only=true").json()
-    assert [p["slug"] for p in profs] == ["zaman"]
-    assert profs[0]["name"] == "Tauhid Zaman" and profs[0]["courses"] == ["MGT 409"]
+    profs = {p["slug"]: p for p in client.get("/api/professors?persona_only=true").json()}
+    assert set(profs) == {"schott", "zaman"}
+    assert profs["zaman"]["name"] == "Tauhid Zaman" and profs["zaman"]["courses"] == ["MGT 409"]
+    assert profs["schott"]["name"] == "Peter Schott" and profs["schott"]["courses"] == ["MGT 407"]
+
+
+def test_schott_prompt_has_emba_stats_research_and_style():
+    text = professors.instructions_for("schott")
+    assert "MGT 407 Statistics" in text  # course from the database
+    assert "Juan Trippe Professor" in text  # bio from the database
+    assert "Surprisingly Swift Decline" in text and "Totoro" in text  # persona + research
+    assert "{" not in text
