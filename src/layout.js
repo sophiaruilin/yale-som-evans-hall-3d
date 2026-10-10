@@ -20,6 +20,14 @@ const norm = (v) => {
 export const rDir = (d, rx, rz) => 1 / Math.sqrt((d[0] / rx) ** 2 + (d[1] / rz) ** 2)
 // same angle convention as THREE.CylinderGeometry: x = sin, z = cos
 export const ellPt = (c, rx, rz, th) => [c[0] + rx * Math.sin(th), c[1] + rz * Math.cos(th)]
+// distance from point p to segment a-b
+const segDist = (p, a, b) => {
+  const dx = b[0] - a[0]
+  const dz = b[1] - a[1]
+  const l2 = dx * dx + dz * dz
+  const u = l2 > 0 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / l2)) : 0
+  return Math.hypot(p[0] - a[0] - dx * u, p[1] - a[1] - dz * u)
+}
 export const arc = (c, rx, rz, a0, a1, n) =>
   Array.from({ length: n + 1 }, (_, i) => ellPt(c, rx, rz, a0 + ((a1 - a0) * i) / n))
 
@@ -164,13 +172,19 @@ for (const d of DRUMS) {
     SCREENS.push({ x: fc[0] + back[0] * 0.15 + t[0] * o, z: fc[1] + back[1] * 0.15 + t[1] * o, rot, course: d.course, kind: SLIDE_ORDER[k] }),
   )
   BOARDS.push({ x: fc[0] + back[0] * 0.15, z: fc[1] + back[1] * 0.15, rot, w: Math.min(2 * half - 1.2, 7) })
-  const lp = [fc[0] + back[0] * 0.8 + t[0] * half * 0.35, fc[1] + back[1] * 0.8 + t[1] * half * 0.35]
+  // podium tucked against the front wall, off to the side, so the walkway between the two
+  // doors and the professor (who stands ~1.15 m off the wall) stays clear
+  const lp = [fc[0] + back[0] * 0.45 + t[0] * half * 0.62, fc[1] + back[1] * 0.45 + t[1] * half * 0.62]
   LECTERNS.push({ x: lp[0], z: lp[1], rot })
   W([lp[0] - t[0] * 0.35, lp[1] - t[1] * 0.35], [lp[0] + t[0] * 0.35, lp[1] + t[1] * 0.35], 'none', { t: 0.5 })
 
   // stadium seating: row i sits on a riser i * RISE above the front floor
   const F = [fc[0] + back[0] * 1.5, fc[1] + back[1] * 1.5]
   const doorPts = doors.map((a) => ellPt(c, rx, rz, a))
+  // keep a straight walking lane from each door to where the professor stands (see Faculty.jsx)
+  const profSpot = [fc[0] + back[0] * 1.15 - t[0] * half * 0.3, fc[1] + back[1] * 1.15 - t[1] * half * 0.3]
+  const lanes = doors.map((a) => [ellPt(c, rx - 1.0, rz - 1.0, a), profSpot])
+  const LANE_CLEAR = 1.5 // desk half-length 0.6 + half-depth 0.25 + player radius 0.35 + elbow room
   let i = 0
   for (let r = ROW0; r < rIn * FRONT_DEPTH + rOut - 1.4; r += ROW_STEP, i++) {
     const y = i * RISE
@@ -182,6 +196,7 @@ for (const d of DRUMS) {
       const p = [F[0] + ux[0] * r, F[1] + ux[1] * r]
       if (((p[0] - c[0]) / (rx - 1.1)) ** 2 + ((p[1] - c[1]) / (rz - 1.1)) ** 2 > 1) continue
       if (doorPts.some((q) => Math.hypot(p[0] - q[0], p[1] - q[1]) < 2.2)) continue
+      if (lanes.some(([a, b]) => segDist(p, a, b) < LANE_CLEAR)) continue
       const tg = [-Math.sin(th) * back[0] + Math.cos(th) * t[0], -Math.sin(th) * back[1] + Math.cos(th) * t[1]]
       W([p[0] - tg[0] * 0.6, p[1] - tg[1] * 0.6], [p[0] + tg[0] * 0.6, p[1] + tg[1] * 0.6], 'desk', { h: 0.95, t: 0.5, y0: y })
       for (const s of [-0.3, 0.3]) {
