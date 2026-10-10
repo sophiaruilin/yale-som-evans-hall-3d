@@ -7,9 +7,11 @@ Docs: http://127.0.0.1:8001/docs
 from __future__ import annotations
 
 import logging
+import os
 import time
 import uuid
 from collections import defaultdict, deque
+from datetime import date
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,18 +26,42 @@ log = logging.getLogger("professors")
 
 RATE_LIMIT = 20  # chat requests per client per window
 RATE_WINDOW_S = 60
+DAILY_LIMIT = int(os.getenv("DAILY_CHAT_LIMIT", "500"))  # all clients combined; caps model spend
 
 app = FastAPI(title="Evans Hall professors")
 
-# Local dev only: the Vite dev server (any localhost port). uvicorn binds 127.0.0.1 by default.
+# Which web pages may call this API: local dev servers, the GitHub Pages site, Render
+# static sites, plus anything listed in ALLOWED_ORIGINS (comma-separated full origins).
+ALLOWED_ORIGINS = [o.strip().rstrip("/") for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+|https://sophiaruilin\.github\.io|https://[a-z0-9-]+\.onrender\.com",
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
 )
 
 _hits: dict[str, deque[float]] = defaultdict(deque)
+_daily = {"day": date.today(), "count": 0}
+
+
+def _client_ip(request: Request) -> str:
+    # Behind Render's proxy every request comes from the proxy; the visitor is the first
+    # address in X-Forwarded-For.
+    fwd = request.headers.get("x-forwarded-for", "")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _daily_cap_reached() -> bool:
+    today = date.today()
+    if _daily["day"] != today:
+        _daily.update(day=today, count=0)
+    if _daily["count"] >= DAILY_LIMIT:
+        return True
+    _daily["count"] += 1
+    return False
 
 
 def _rate_limited(client: str) -> bool:
@@ -69,8 +95,10 @@ def list_professors(persona_only: bool = False):
 async def chat(slug: str, body: ChatRequest, request: Request):
     if slug not in professors.registry():
         raise HTTPException(404, "No professor by that name.")
-    if _rate_limited(request.client.host if request.client else "unknown"):
+    if _rate_limited(_client_ip(request)):
         raise HTTPException(429, "Whoa, that's a lot of questions. Give it a minute and try again.")
+    if _daily_cap_reached():
+        raise HTTPException(429, "The professors are done with office hours for today. Come back tomorrow!")
 
     run_id = uuid.uuid4().hex[:8]
     started = time.perf_counter()

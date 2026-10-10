@@ -35,6 +35,7 @@ def audit_path(tmp_path, monkeypatch):
 @pytest.fixture
 def client(monkeypatch):
     main._hits.clear()
+    monkeypatch.setitem(main._daily, "count", 0)
     return TestClient(main.app)
 
 
@@ -200,3 +201,38 @@ def test_ai_course_professors_have_course_bio_research_and_rules(slug, course):
     assert "Public record" in text and "never invent" in text  # factual persona
     assert "not the real professor" in text  # shared safety rules
     assert "{" not in text
+
+
+# ---------------------------------------------------------------- deployment (Render)
+
+
+@pytest.mark.parametrize("origin,allowed", [
+    ("http://localhost:5173", True),
+    ("https://sophiaruilin.github.io", True),
+    ("https://evans-hall-frontend.onrender.com", True),
+    ("https://evil.example.com", False),
+    ("http://evans-hall.onrender.com", False),  # https only
+])
+def test_cors_allows_our_sites_only(client, origin, allowed):
+    res = client.options(
+        "/api/professors/zaman/chat",
+        headers={"Origin": origin, "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "content-type"},
+    )
+    assert (res.headers.get("access-control-allow-origin") == origin) is allowed
+
+
+def test_rate_limit_is_per_visitor_behind_proxy(client, monkeypatch, audit_path):
+    monkeypatch.setattr(professors, "chat", fake_chat())
+    url = "/api/professors/zaman/chat"
+    for _ in range(main.RATE_LIMIT):
+        client.post(url, json={"message": "hi"}, headers={"X-Forwarded-For": "1.1.1.1, 10.0.0.1"})
+    assert client.post(url, json={"message": "hi"}, headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 429
+    assert client.post(url, json={"message": "hi"}, headers={"X-Forwarded-For": "2.2.2.2"}).status_code == 200
+
+
+def test_daily_cap(client, monkeypatch, audit_path):
+    monkeypatch.setattr(professors, "chat", fake_chat())
+    monkeypatch.setattr(main, "DAILY_LIMIT", 2)
+    monkeypatch.setitem(main._daily, "count", 0)
+    codes = [client.post("/api/professors/zaman/chat", json={"message": "hi"}, headers={"X-Forwarded-For": f"9.9.9.{i}"}).status_code for i in range(3)]
+    assert codes == [200, 200, 429]

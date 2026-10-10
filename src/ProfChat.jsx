@@ -55,7 +55,7 @@ export default function ProfChat({ slug, onClose }) {
     } catch (err) {
       setError(
         err.message === 'Failed to fetch'
-          ? "Can't reach the professor. Chat runs locally: start the back end on port 8001."
+          ? `Can't reach the professor server (${API_URL}). It may be waking up, so try again in a minute.`
           : err.message,
       )
     } finally {

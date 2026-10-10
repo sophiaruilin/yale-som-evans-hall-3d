@@ -15,6 +15,33 @@ python -m venv .venv
 
 Put `PORTKEY_API_KEY` in a `.env` file: `backend/.env`, the repo root, or the folder above it. These files are git-ignored. The default model is `gpt-6-luna` via Portkey; set `OPENAI_MODEL` to change it. Then run the game with `npm run dev`, walk up to Prof. Zaman in room 2200, aim at him, and click.
 
+## Deploy on Render
+
+**Back end (Web Service):**
+
+| Setting | Value |
+|---|---|
+| Root Directory | `backend` |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
+
+Back-end environment variables:
+- `PORTKEY_API_KEY`: required.
+- `OPENAI_MODEL`: optional, defaults to `gpt-6-luna`.
+- `DAILY_CHAT_LIMIT`: optional, defaults to 500 chats a day across all visitors.
+- `ALLOWED_ORIGINS`: optional, extra front-end URLs separated by commas. `*.onrender.com`, `sophiaruilin.github.io`, and localhost are allowed by default.
+
+**Front end (Static Site, repo root):**
+
+| Setting | Value |
+|---|---|
+| Build Command | `npm ci && npm run build` |
+| Publish Directory | `dist` |
+
+Front-end environment variable: `VITE_PROF_API` = the back-end URL, with no trailing slash. It's built into the bundle, so redeploy after changing it.
+
+Check the back end at `/api/health`. It should report `"professors": 109`.
+
 ## Pieces
 
 | File | Role |
