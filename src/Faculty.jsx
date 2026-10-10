@@ -4,6 +4,8 @@ import Professor, { PROFESSORS } from './Professor.jsx'
 import Zaman from './Zaman.jsx'
 import Schott from './Schott.jsx'
 import Totoro from './Totoro.jsx'
+import ProfAvatar from './ProfAvatar.jsx'
+import { AI_PROFS } from './aiProfs.js'
 import { PROFESSOR_INFO } from './talk.js'
 import { DRUMS, LECTERNS } from './layout.js'
 
@@ -11,14 +13,9 @@ import { DRUMS, LECTERNS } from './layout.js'
 // MGT 409 really meets in Evans 2200 (course database), so AI-Zaman stands there;
 // Snape moved over to 2400.
 export const ROOM_PROFESSOR = {
-  2400: 'snape', // MGT 402 Basics of Accounting
-  2410: 'mcgonagall', // MGT 404 Basics of Economics
-  2420: 'trelawney', // MGT 403 Probability Modeling & Statistics
-  2430: 'slughorn', // MGT 887 Negotiations
   2200: 'zaman', // MGT 409 AI Foundations for Managers (Evans 2200)
   2210: 'schott', // MGT 407 Statistics (EMBA; no room listed, placed next to Zaman)
-  2220: 'moody', // MGT 800 Crisis Management in Tech
-  2230: 'flitwick', // MGT 541 Corporate Finance
+  ...Object.fromEntries(Object.entries(AI_PROFS).map(([slug, p]) => [p.room, slug])), // AI course professors
 }
 
 function plaqueTex(name) {
@@ -62,6 +59,8 @@ export default function Faculty() {
         <group key={i}>
           {it.who === 'zaman' ? (
             <Zaman position={it.pos} rotation={it.rot} />
+          ) : AI_PROFS[it.who] ? (
+            <ProfAvatar slug={it.who} look={AI_PROFS[it.who].look} position={it.pos} rotation={it.rot} />
           ) : it.who === 'schott' ? (
             <>
               <Schott position={it.pos} rotation={it.rot} />

@@ -1,3 +1,5 @@
+import { AI_PROFS } from './aiProfs.js'
+
 // Tiny shared state for talking to professors.
 // Avatars register their root object so the crosshair can raycast them, and read
 // talkState.with in useFrame to know when to turn toward the player.
@@ -10,6 +12,7 @@ export const talkState = { with: null } // slug of the professor you're chatting
 export const PROFESSOR_INFO = {
   zaman: { name: 'Tauhid Zaman', short: 'Prof. Zaman', course: 'MGT 409 · AI Foundations for Managers' },
   schott: { name: 'Peter Schott', short: 'Prof. Schott', course: 'MGT 407 · Statistics (EMBA)' },
+  ...Object.fromEntries(Object.entries(AI_PROFS).map(([slug, p]) => [slug, { name: p.name, short: p.short, course: p.course }])),
 }
 
 export function startTalk(slug) {

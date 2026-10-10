@@ -10,6 +10,12 @@ export const COURSES = {
   mgt402: { code: 'MGT 402', name: 'Basics of Accounting', prof: 'Severus Snape' },
   mgt538: { code: 'MGT 538', name: 'Mastering Influence & Persuasion', prof: 'Gilderoy Lockhart' },
   mgt407: { code: 'MGT 407', name: 'Statistics (EMBA)', prof: 'Peter Schott' },
+  mgt802: { code: 'MGT 802', name: 'Large Language Models', prof: 'Kyle Jensen' },
+  mgt927: { code: 'MGT 927', name: 'Financial Econometrics & ML', prof: 'Bryan Kelly' },
+  mgt860: { code: 'MGT 860', name: 'Generative AI for Managers', prof: 'K. Sudhir' },
+  mgt695: { code: 'MGT 695', name: 'Introduction to AI Applications', prof: 'Xiuye Chen' },
+  mgt809: { code: 'MGT 809', name: 'Analytics in the Age of AI', prof: 'Zhen Lian' },
+  mgt634: { code: 'MGT 634', name: 'Empirical Strategy with AI', prof: 'Kevin Williams' },
   mgt800: { code: 'MGT 800', name: 'Crisis Management in Tech', prof: 'Alastor Moody' },
   mgt541: { code: 'MGT 541', name: 'Corporate Finance', prof: 'Filius Flitwick' },
 }
@@ -58,6 +64,38 @@ const DECKS = {
     content: ['Reading a regression', ['ŷ = β₀ + β₁x: the slope is the story', 'Standard error → confidence interval', 'p < 0.05 is evidence, not proof', 'Natural experiments find causes']],
     chart: 'regression',
   },
+  mgt802: {
+    title: ['Inside a Language Model', 'From neurons to next-token prediction'],
+    content: ['How an LLM writes', ['Text → tokens → embeddings', 'Attention: every token looks at the others', 'Predict the next token, repeat', 'Training data shapes what it knows']],
+    chart: 'models',
+  },
+  mgt927: {
+    title: ['Machine Learning for Returns', 'Prediction meets asset pricing'],
+    content: ['Why ML in finance', ['Many signals, few clear rules', 'Regularize: shrink to avoid overfitting', 'Out-of-sample or it did not happen', 'Economic value > R² alone']],
+    chart: 'regression',
+  },
+  mgt860: {
+    title: ['Generative AI for Managers', 'Where GenAI creates value'],
+    content: ['A manager’s GenAI playbook', ['Start with the customer problem', 'Augment people before replacing tasks', 'Measure quality, cost, and risk', 'Govern data and keep humans in the loop']],
+    chart: 'funnel',
+    labels: ['Problem', 'Pilot', 'Measure', 'Scale'],
+  },
+  mgt695: {
+    title: ['AI Applications 101', 'From models to products'],
+    content: ['Building with AI', ['Pick a task with clear success metrics', 'Classical ML vs. deep learning vs. LLMs', 'Data quality beats model size', 'Ship, evaluate, iterate']],
+    chart: 'models',
+  },
+  mgt809: {
+    title: ['Analytics in the Age of AI', 'Knowing why, not just how'],
+    content: ['From prediction to decision', ['Predictions are inputs, not answers', 'Optimize the decision, not the metric', 'Watch for bias and feedback loops', 'Experiment to learn causal effects']],
+    chart: 'timeline',
+    labels: [['1', 'Data'], ['2', 'Predict'], ['3', 'Optimize'], ['4', 'Decide'], ['5', 'Learn']],
+  },
+  mgt634: {
+    title: ['Empirical Strategy with AI', 'Finding causes in messy data'],
+    content: ['Identification first', ['What variation identifies the effect?', 'Natural experiments and diff-in-diff', 'AI speeds up the work, not the thinking', 'Check robustness before you believe it']],
+    chart: 'regression',
+  },
   mgt800: {
     title: ['Constant Vigilance', 'Running the first 72 hours of a tech crisis'],
     content: ['The incident playbook', ['Detect: alerts, not tweets', 'Contain first, explain second', 'One voice, one channel, regular updates', 'Blameless post-mortem within a week']],
@@ -87,7 +125,8 @@ function frame(g, course, title) {
   g.fillRect(W - 140, Hh - 40, 84, 24)
 }
 
-function drawChart(g, which) {
+// labels: optional per-deck labels for the funnel / timeline charts
+function drawChart(g, which, labels) {
   g.strokeStyle = INK
   g.lineWidth = 4
   const ox = 180
@@ -175,7 +214,7 @@ function drawChart(g, which) {
     g.font = '28px Georgia, serif'
     g.fillText('Nash eq.', x0 + c + 75, y0 + 2 * c + 20)
   } else if (which === 'funnel') {
-    const steps = [['Attention', 900], ['Interest', 700], ['Trust', 500], ['Yes', 300]]
+    const steps = (labels ?? ['Attention', 'Interest', 'Trust', 'Yes']).map((l, i) => [l, 900 - i * 200])
     steps.forEach(([label, w], i) => {
       g.fillStyle = [BLUE, '#3d5f93', '#8aa4c8', PINK][i]
       g.fillRect(640 - w / 2, 170 + i * 105, w, 88)
@@ -190,7 +229,7 @@ function drawChart(g, which) {
     g.moveTo(120, 400)
     g.lineTo(1160, 400)
     g.stroke()
-    const marks = [['0h', 'Detect'], ['1h', 'Contain'], ['4h', 'Update'], ['24h', 'Fix'], ['72h', 'Post-mortem']]
+    const marks = labels ?? [['0h', 'Detect'], ['1h', 'Contain'], ['4h', 'Update'], ['24h', 'Fix'], ['72h', 'Post-mortem']]
     marks.forEach(([tm, lab], i) => {
       const x = 160 + i * 240
       g.fillStyle = i === 1 ? PINK : BLUE
@@ -291,7 +330,7 @@ export function slideTex(course, kind) {
     })
   } else {
     frame(g, course, deck.title[0])
-    drawChart(g, deck.chart)
+    drawChart(g, deck.chart, deck.labels)
   }
   const t = new THREE.CanvasTexture(c)
   t.colorSpace = THREE.SRGBColorSpace

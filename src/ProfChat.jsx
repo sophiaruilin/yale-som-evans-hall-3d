@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { PROFESSOR_INFO } from './talk.js'
+import { AI_PROFS } from './aiProfs.js'
 
 // Chat window for the AI professor characters. Talks to the FastAPI back end in backend/
 // (local only: cd backend && .venv/Scripts/uvicorn main:app --port 8001).
@@ -9,6 +10,7 @@ const MAX_CHARS = 1500 // matches MAX_MESSAGE_CHARS in backend/models.py
 const GREETING = {
   zaman: "Yo! Welcome to MGT 409. Ask me anything: AI agents, stats, regression, which classes to take... let's gooo.",
   schott: "Hey hey, welcome to EMBA stats! Stoked you stopped by. Got a long problem for me? Those are my favorite.",
+  ...Object.fromEntries(Object.entries(AI_PROFS).map(([slug, p]) => [slug, p.greeting])),
 }
 
 export default function ProfChat({ slug, onClose }) {
@@ -73,7 +75,7 @@ export default function ProfChat({ slug, onClose }) {
           Back to walking
         </button>
       </header>
-      <div className="pc-disclaimer">AI character inspired by Prof. {info.name}, not the real professor. For grades, extensions, or course policies, ask the real professor.</div>
+      <div className="pc-disclaimer">AI character inspired by {info.name}, not the real professor. For grades, extensions, or course policies, ask the real professor.</div>
       <div className="pc-log">
         {messages.map((m, i) => (
           <div key={i} className={`pc-msg ${m.role}`}>

@@ -177,7 +177,7 @@ def test_successful_turn_is_logged(client, monkeypatch, audit_path):
 
 def test_professor_list(client):
     profs = {p["slug"]: p for p in client.get("/api/professors?persona_only=true").json()}
-    assert set(profs) == {"schott", "zaman"}
+    assert set(profs) == {"zaman", "schott", "jensen", "kelly", "sudhir", "chen", "lian", "williams"}
     assert profs["zaman"]["name"] == "Tauhid Zaman" and profs["zaman"]["courses"] == ["MGT 409"]
     assert profs["schott"]["name"] == "Peter Schott" and profs["schott"]["courses"] == ["MGT 407"]
 
@@ -187,4 +187,16 @@ def test_schott_prompt_has_emba_stats_research_and_style():
     assert "MGT 407 Statistics" in text  # course from the database
     assert "Juan Trippe Professor" in text  # bio from the database
     assert "Surprisingly Swift Decline" in text and "Totoro" in text  # persona + research
+    assert "{" not in text
+
+
+@pytest.mark.parametrize("slug,course", [
+    ("jensen", "MGT 802"), ("kelly", "MGT 927"), ("sudhir", "MGT 860"),
+    ("chen", "MGT 695"), ("lian", "MGT 809"), ("williams", "MGT 634"),
+])
+def test_ai_course_professors_have_course_bio_research_and_rules(slug, course):
+    text = professors.instructions_for(slug)
+    assert course in text  # course from the database
+    assert "Public record" in text and "never invent" in text  # factual persona
+    assert "not the real professor" in text  # shared safety rules
     assert "{" not in text
