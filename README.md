@@ -4,7 +4,9 @@ A first-person walk-through of the 2nd floor of Edward P. Evans Hall (Yale Schoo
 
 It includes the blue classroom drums you can walk into, the curvy glass cloister around the courtyard, Ross Library on the west side, the Beinecke Terrace Room and its outdoor terrace on the east side, the small glass meeting rooms, and paintings above the stairwells.
 
-**Walk it in your browser:** https://zlisto.github.io/yale_som_virtual/
+**Walk it in your browser:** https://sophiaruilin.github.io/yale-som-evans-hall-3d/
+
+> This is a fork of [zlisto/yale_som_virtual](https://github.com/zlisto/yale_som_virtual), the original project and its live version at https://zlisto.github.io/yale_som_virtual/. All credit for the model and code goes to the original author.
 
 ## Run it locally
 
