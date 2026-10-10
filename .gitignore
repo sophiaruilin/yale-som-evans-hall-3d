@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env
 .env.*
+!.env.example
 # raw walk-through photos (people in shot) stay local
 reference/
 
@@ -15,3 +16,9 @@ data/private/
 # python
 .venv/
 __pycache__/
+
+# professor backend: secrets, logs, private course notes
+backend/output/
+backend/.pytest_cache/
+backend/materials/*
+!backend/materials/README.md

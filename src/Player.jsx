@@ -36,6 +36,7 @@ export default function Player({ lockRef, mapRef, touchRef, onLock, onWhere }) {
     controls.addEventListener('lock', on)
     controls.addEventListener('unlock', off)
     const down = (e) => {
+      if (e.target instanceof HTMLElement && e.target.matches('input, textarea')) return // typing in a chat
       keys.current[e.code] = true
       if (e.code === 'Space') e.preventDefault()
     }

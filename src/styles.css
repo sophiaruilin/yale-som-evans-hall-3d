@@ -249,3 +249,134 @@ body,
     font-size: 38px;
   }
 }
+
+/* talking to professors */
+.crosshair.aim {
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: transparent;
+  border: 2px solid var(--pink);
+}
+.talkhint {
+  position: fixed;
+  left: 50%;
+  top: calc(50% + 22px);
+  transform: translateX(-50%);
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(11, 11, 13, 0.8);
+  border: 1px solid var(--pink);
+  color: var(--pink-soft);
+  font-size: 13px;
+  pointer-events: none;
+}
+.profchat {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: min(420px, calc(100vw - 32px));
+  height: min(560px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  background: rgba(11, 11, 13, 0.94);
+  border: 2px solid var(--pink);
+  border-radius: 16px;
+  color: #f4f0f2;
+  box-shadow: 0 0 24px rgba(255, 79, 163, 0.35);
+  z-index: 20;
+}
+.profchat header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(255, 79, 163, 0.35);
+}
+.pc-name { font-weight: 700; font-size: 17px; color: var(--pink); }
+.pc-course { font-size: 12px; color: var(--pink-soft); opacity: 0.85; }
+.pc-close {
+  background: transparent;
+  color: var(--pink-soft);
+  border: 1px solid var(--pink);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.pc-close:hover { background: rgba(255, 79, 163, 0.15); }
+.pc-disclaimer {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #b9adb3;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.pc-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pc-msg {
+  max-width: 85%;
+  padding: 9px 13px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.pc-msg.assistant { align-self: flex-start; background: #1f1c22; border-top-left-radius: 4px; }
+.pc-msg.user { align-self: flex-end; background: var(--pink); color: #1a0710; border-top-right-radius: 4px; }
+.pc-typing { display: flex; gap: 4px; }
+.pc-typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pink-soft);
+  animation: pcblink 1.2s infinite ease-in-out;
+}
+.pc-typing span:nth-child(2) { animation-delay: 0.2s; }
+.pc-typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pcblink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+.pc-error {
+  align-self: center;
+  font-size: 12px;
+  color: #ffb3c8;
+  background: rgba(255, 79, 163, 0.12);
+  border-radius: 8px;
+  padding: 6px 10px;
+  text-align: center;
+}
+.pc-input {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px 14px;
+  border-top: 1px solid rgba(255, 79, 163, 0.35);
+}
+.pc-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 214, 234, 0.35);
+  background: #141216;
+  color: #f4f0f2;
+  font-size: 14px;
+  outline: none;
+}
+.pc-input input:focus { border-color: var(--pink); }
+.pc-input button {
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--pink);
+  color: #1a0710;
+  font-weight: 700;
+  cursor: pointer;
+}
+.pc-input button:disabled { opacity: 0.45; cursor: default; }
